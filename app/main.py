@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import keras
 import os
+from flask_cors import CORS
 
 from flask import Flask, render_template, request, jsonify
 # from keras import preprocessing
@@ -14,6 +15,7 @@ from werkzeug.utils import secure_filename
 model = keras.models.load_model("soybeans.h5")
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 def model_predict(img_path):
     #load the image, make sure it is the target size (specified by model code)
@@ -32,7 +34,6 @@ def model_predict(img_path):
     return pred
 
 def output_statement(pred):
-    #need to figure out what the fuck the outputs are in order to write output statements.
     index = -1
     compareVal = -1
     for i in range(len(pred[0])):
@@ -55,29 +56,13 @@ def output_statement(pred):
         return 'Error: Model sent prediction out of the prescribed range. Please try again.'
     return {"message": msg, "accuracy": compareVal}
 
-#this is a basic link to an html and is the landing page at the moment. 
-#want to change the landing page to be stylized with buttons that link to the other html pages
-#May need to have additional app routes with this same code in it so that the buttons are available
-#from all pages.
-#Then, I need to add a button somewhere, or everywhere, to upload an image for the DL model 
 @app.route("/predict", methods=['GET','POST'])
-# def home():
-#     if request.method == 'POST':
-#         if request.form.get('action1') == 'Home':
-#             return render_template('index.html') #this is the default or home page
-#         elif request.form.get('action2') == 'How To Use':
-#             return render_template('howtouse.html') #fill this in when howtouse.html is written
-#         elif request.form.get('action3') == 'About':
-#             return render_template('about.html') #this is the about page. can add additional things to it
-#     elif request.method == 'GET':
-#         return render_template('index.html')
-#     return render_template("index.html")
-
-# @app.route('/predict', methods = ['POST'])
 def user_upload():
+    output = {}
     if request.method == 'POST':
         #need to get image from POST request
         f = request.files["image"]
+        print(request.files)
         # #create img_path to call model
         basepath = os.path.dirname(__file__)
         img_path = os.path.join(basepath, 'uploads', secure_filename(f.filename))
@@ -87,16 +72,10 @@ def user_upload():
         pred = pred.tolist()
         output = output_statement(pred)
         os.remove(img_path)
+        output = {"message": output["message"], "accuracy": output["accuracy"]}
         return {"message": output["message"], "accuracy": output["accuracy"]}
-        # response = {}
-        # name = request.args.get("name", None)
-        # if not name:
-        #     response["ERROR"] = "No name found"
-        # else:
-        #     response["MESSAGE"] = f"Welcome {name} to our awesome API!"
-        # return jsonify(response)
 
     elif request.method == 'GET':
-        response = {}
+        response = output
         response["MESSAGE"] = "Soybean Prediciton API is running!"
         return response
