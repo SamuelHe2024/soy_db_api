@@ -3,13 +3,10 @@ import numpy as np
 import keras
 import os
 from flask_cors import CORS
-
 from flask import Flask, render_template, request, jsonify
-# from keras import preprocessing
-# from keras import models
-# from keras.models import load_model, loaded_model
-# from keras.preprocessing import image
 from werkzeug.utils import secure_filename
+import app.db as data
+
 
 
 model = keras.models.load_model("soybeans.h5")
@@ -77,5 +74,11 @@ def user_upload():
 
     elif request.method == 'GET':
         response = output
-        response["MESSAGE"] = "Soybean Prediciton API is running!"
+        response["MESSAGE"] = "API is running!"
+        return response
+    
+@app.route("/db/dry_weight", methods=['GET','POST'])
+def database_info():
+    if request.method == 'GET':
+        response = data.get_dry_weight()
         return response
