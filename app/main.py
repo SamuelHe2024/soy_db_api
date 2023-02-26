@@ -78,7 +78,28 @@ def user_upload():
         return response
     
 @app.route("/db/dry_weight", methods=['GET','POST'])
-def database_info():
+def dry_weight():
     if request.method == 'GET':
         response = data.get_dry_weight()
+        return response
+    
+    
+@app.route("/db/water_uptake", methods=['GET','POST'])
+def water_uptake():
+    if request.method == 'GET':
+        response = data.get_water_uptake()
+        return response
+    
+    
+@app.route("/db/image_data", methods=['GET','POST'])
+def image_data():
+    if request.method == 'GET':
+        response = data.get_image_data()
+        return response
+    
+    
+@app.route("/db/solution_data", methods=['GET','POST'])
+def solution_data():
+    if request.method == 'GET':
+        response = data.get_solution_data()
         return response
