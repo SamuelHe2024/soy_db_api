@@ -33,9 +33,6 @@ def get_dry_weight():
     conn.commit()
 
     values = cursor.fetchall()
-
-    for row in values:
-        print("solution = " + row[1])
     cursor.close()
     conn.close
     return values
@@ -70,9 +67,6 @@ def get_water_uptake():
     conn.commit()
 
     values = cursor.fetchall()
-
-    for row in values:
-        print("solution = " + row[1])
     cursor.close()
     conn.close
     return values
@@ -115,13 +109,9 @@ def get_image_data():
     conn.close
     return values
 
-############################ IMAGE DATA FUNCTIONS ############################
+############################ SOLUTION DATA FUNCTIONS ############################
 #INPUTS:
-#image_name: string (varchar)
-#solution: string (varchar)
-#day_prediction: string (varchar)
-#image_data: bytea
-#segmented_image: bytea
+#A LOT
 def insert_solution_data(solution, concentration, calcium, magnesium, sodium, potassium, boron, co_3, hco_3, so_4, 
                          chlorine, no3_n, phosphorus, ph, conductivity, sar, iron, zinc, copper, manganese, arsenic, 
                          barium, nickel, cadmium, lead, chromium, fluorine, cb):
@@ -156,6 +146,3 @@ def get_solution_data():
     cursor.close()
     conn.close
     return values
-
-
-get_image_data()

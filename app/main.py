@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import json
 import keras
 import os
 from flask_cors import CORS
@@ -80,14 +81,23 @@ def user_upload():
 @app.route("/db/dry_weight", methods=['GET','POST'])
 def dry_weight():
     if request.method == 'GET':
-        response = data.get_dry_weight()
+        raw_data = data.get_dry_weight()
+        response = {"row_data":[]}
+        count = 0
+        for row in raw_data:
+            response["row_data"].append({'id':row[0],'solution': row[1], 'dry weight':row[2]})
+            count += 1
         return response
     
     
 @app.route("/db/water_uptake", methods=['GET','POST'])
 def water_uptake():
     if request.method == 'GET':
-        response = data.get_water_uptake()
+        raw_data = data.get_water_uptake()
+        response = {"row_data":[]}
+        count = 0
+        for row in raw_data:
+            response["row_data"].append({'id':row[0],'solution':row[1], 'uptake amount': row[2], 'uptake date': row[3]})
         return response
     
     
