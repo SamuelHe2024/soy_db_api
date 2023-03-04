@@ -69,20 +69,17 @@ def output_statement(pred):
 
 @app.route("/upload", methods=['POST'])
 def user_upload():
-    if 'image' not in request.files:
-        return 'Error: no images attached'
-    file = request.files['image']
-
-    if file.filename == '':
-        return "No selected file"
-
-    output = upload_file_to_s3(file)
-    if output:
-        print("uploaded")
-        return "SUCCESSFUL UPLOAD"
-    else:
-        print("not uploaded")
-        return "no upload"
+    if request.method == 'POST':
+        uploaded_files = request.files.getlist('files[]')
+        for file in uploaded_files:
+            if file.filename == '':
+                return "No selected file"
+            output = upload_file_to_s3(file)
+            if output:
+                print("uploaded")
+            else:
+                print("not uploaded")
+        return ""
 
 @app.route("/predict", methods=['GET','POST'])
 def user_predict():
