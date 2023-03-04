@@ -1,19 +1,32 @@
 import tensorflow as tf
 import numpy as np
-import json
 import keras
 import os
 from flask_cors import CORS
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 import app.db as data
+from app.util.helpers import upload_file_to_s3
 
-
+AWS_BUCKET_NAME=os.getenv('AWS_BUCKET_NAME')
+AWS_ACCESS_KEY=os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_KEY=os.getenv('AWS_SECRET_KEY')
+AWS_LOCATION=os.getenv('AWS_LOCATION')
 
 model = keras.models.load_model("soybeans.h5")
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+app.config['S3_BUCKET'] = AWS_BUCKET_NAME
+app.config['S3_KEY'] = AWS_ACCESS_KEY
+app.config['S3_SECRET'] = AWS_SECRET_KEY
+app.config['S3_LOCATION'] = AWS_LOCATION
+# app.config['S3_BUCKET'] = os.getenv('AWS_BUCKET_NAME')
+# app.config['S3_KEY'] = os.getenv('AWS_ACCESS_KEY')
+# app.config['S3_SECRET'] = os.getenv('AWS_SECRET_KEY')
+# app.config['S3_LOCATION'] = os.getenv('AWS_BUCKET_NAME')
+
 
 def model_predict(img_path):
     #load the image, make sure it is the target size (specified by model code)
@@ -54,8 +67,25 @@ def output_statement(pred):
         return 'Error: Model sent prediction out of the prescribed range. Please try again.'
     return {"message": msg, "accuracy": compareVal}
 
-@app.route("/predict", methods=['GET','POST'])
+@app.route("/upload", methods=['POST'])
 def user_upload():
+    if 'image' not in request.files:
+        return 'Error: no images attached'
+    file = request.files['image']
+
+    if file.filename == '':
+        return "No selected file"
+
+    output = upload_file_to_s3(file)
+    if output:
+        print("uploaded")
+        return "SUCCESSFUL UPLOAD"
+    else:
+        print("not uploaded")
+        return "no upload"
+
+@app.route("/predict", methods=['GET','POST'])
+def user_predict():
     output = {}
     if request.method == 'POST':
         #need to get image from POST request
@@ -83,11 +113,13 @@ def dry_weight():
     if request.method == 'GET':
         raw_data = data.get_dry_weight()
         response = {"row_data":[]}
-        count = 0
+        columns = ["id", "solution", "dry weight"]
         for row in raw_data:
-            response["row_data"].append({'id':row[0],'solution': row[1], 'dry weight':row[2]})
-            count += 1
-        return response
+            append_obj = {}
+            for i in range (len(columns)):
+                append_obj[columns[i]] = row[i]
+            response['row_data'].append(append_obj)
+    return response
     
     
 @app.route("/db/water_uptake", methods=['GET','POST'])
@@ -95,21 +127,32 @@ def water_uptake():
     if request.method == 'GET':
         raw_data = data.get_water_uptake()
         response = {"row_data":[]}
-        count = 0
+        columns = ["id","solution","uptake amount"]
         for row in raw_data:
-            response["row_data"].append({'id':row[0],'solution':row[1], 'uptake amount': row[2], 'uptake date': row[3]})
-        return response
-    
-    
-@app.route("/db/image_data", methods=['GET','POST'])
-def image_data():
-    if request.method == 'GET':
-        response = data.get_image_data()
+            append_obj = {}
+            for i in range (len(columns)):
+                append_obj[columns[i]] = row[i]
+            response['row_data'].append(append_obj)
         return response
     
     
 @app.route("/db/solution_data", methods=['GET','POST'])
 def solution_data():
     if request.method == 'GET':
-        response = data.get_solution_data()
+        raw_data = data.get_solution_data()
+        response = {"row_data":[]}
+        columns = ["id","solution", "concentration", "calcium", "magnesium", "sodium", "potassium", "boron", "co_3", "hco_3", "so_4", 
+                   "chlorine", "no3_n", "phosphorus", "ph", "conductivity", "sar", "iron", "zinc", "copper", "manganese", "arsenic",
+                   "barium", "nickel","cadmium", "lead", "chromium", "fluorine", "cb"]
+        for row in raw_data:
+            append_obj = {}
+            for i in range (len(columns)):
+                append_obj[columns[i]] = row[i]
+            response['row_data'].append(append_obj)
+        return response
+
+@app.route("/db/image_data", methods=['GET','POST'])
+def image_data():
+    if request.method == 'GET':
+        response = data.get_image_data()
         return response
