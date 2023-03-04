@@ -76,7 +76,7 @@ def user_upload():
                 return "No selected file"
             output = upload_file_to_s3(file)
             if output:
-                print("uploaded")
+                print("uploaded {}",file.filename)
             else:
                 print("not uploaded")
         return ""
@@ -85,21 +85,21 @@ def user_upload():
 def user_predict():
     output = {}
     if request.method == 'POST':
-        #need to get image from POST request
-        f = request.files["image"]
-        print(request.files)
-        # #create img_path to call model
-        basepath = os.path.dirname(__file__)
-        img_path = os.path.join(basepath, 'uploads', secure_filename(f.filename))
-        f.save(img_path)
-        # #call model
-        pred = model_predict(img_path)
-        pred = pred.tolist()
-        output = output_statement(pred)
-        os.remove(img_path)
-        output = {"message": output["message"], "accuracy": output["accuracy"]}
-        return {"message": output["message"], "accuracy": output["accuracy"]}
-
+        uploaded_files = request.files.getlist('files[]')
+        output = {'values':[]}
+        for file in uploaded_files:
+            #need to get image from POST request
+            # #create img_path to call model
+            basepath = os.path.dirname(__file__)
+            img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))
+            file.save(img_path)
+            # #call model
+            pred = model_predict(img_path)
+            pred = pred.tolist()
+            values = output_statement(pred)
+            os.remove(img_path)
+            output['values'].append({"message": values["message"], "accuracy": values["accuracy"]})
+        return output
     elif request.method == 'GET':
         response = output
         response["MESSAGE"] = "API is running!"
