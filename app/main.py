@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 import app.db as data
-from app.util.helpers import upload_file_to_s3
+from app.util.helpers import upload_file_to_s3, read_files_from_s3
 
 AWS_BUCKET_NAME=os.getenv('AWS_BUCKET_NAME')
 AWS_ACCESS_KEY=os.getenv('AWS_ACCESS_KEY')
@@ -53,19 +53,19 @@ def output_statement(pred):
             index = i
     if index == 0:
         #output this range of days
-        msg = 'Model Prediction: Your plant is within Day 9 and Day 12 of the growth cycle.'
+        msg = '9-12'
     elif index == 1:
         #output this range
-        msg = 'Model Prediction: Your plant is within Day 13 and Day 16 of the growth cycle.'
+        msg = '13-16'
     elif index == 2:
         #output this range
-        msg = 'Model Prediction: Your plant is within Day 17 and Day 20 of the growth cycle.'
+        msg = '17-20'
     elif index == 3:
         #output this range
-        msg = 'Model Prediction: Your plant is within Day 21 and Day 28 of the growth cycle.'
+        msg = '21-28'
     else:
-        return 'Error: Model sent prediction out of the prescribed range. Please try again.'
-    return {"message": msg, "accuracy": compareVal}
+        return '[ERROR]: Out of range'
+    return {"prediction": msg, "accuracy": compareVal}
 
 @app.route("/upload", methods=['POST'])
 def user_upload():
@@ -91,14 +91,18 @@ def user_predict():
             #need to get image from POST request
             # #create img_path to call model
             basepath = os.path.dirname(__file__)
-            img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))
+            img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))            
             file.save(img_path)
             # #call model
             pred = model_predict(img_path)
             pred = pred.tolist()
             values = output_statement(pred)
+            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            # change the filename to the segmented filename eventually
+            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url)
             os.remove(img_path)
-            output['values'].append({"message": values["message"], "accuracy": values["accuracy"]})
+            output['values'].append({"prediction": values["prediction"], "accuracy": values["accuracy"]})
         return output
     elif request.method == 'GET':
         response = output
@@ -151,5 +155,22 @@ def solution_data():
 @app.route("/db/image_data", methods=['GET','POST'])
 def image_data():
     if request.method == 'GET':
-        response = data.get_image_data()
+        raw_data = data.get_image_data()
+        response = {"row_data":[]}
+        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url", "solution", "accuracy"]
+        for row in raw_data:
+            append_obj = {}
+            for i in range (len(columns)):
+                append_obj[columns[i]] = row[i]
+            response['row_data'].append(append_obj)
+        return response
+
+@app.route("/db/image_data/<id>", methods=['GET'])
+def image(id):
+    if request.method == 'GET':
+        raw_data = data.get_image(id)
+        response = {"raw_data":[]}
+        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url", "solution", "accuracy"]
+        for i in range (len(raw_data)):
+            response["raw_data"].append({columns[i] : raw_data[i]})
         return response

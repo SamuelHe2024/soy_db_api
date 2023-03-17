@@ -1,7 +1,6 @@
 import psycopg2
 import os
 DATABASE_URL = os.getenv('DATABASE_URL')
-
 ############################ DRY WEIGHT FUNCTIONS ############################
 #INPUTS:
 #solution: string
@@ -35,7 +34,7 @@ def get_dry_weight():
     conn.close
     return values
 
-############################ WAETER UPTAKE FUNCTIONS ############################
+############################ WATER UPTAKE FUNCTIONS ############################
 #INPUTS:
 #solution: string (varchar)
 #uptake_amount: float
@@ -75,15 +74,15 @@ def get_water_uptake():
 #image_name: string (varchar)
 #solution: string (varchar)
 #day_prediction: string (varchar)
-#image_data: bytea
-#segmented_image: bytea
-def insert_image_data(image_name,solution,day_prediction,image_data,segmented_image):
+#image_url: string (varchar)
+#segmented_image_url: string (varchar)
+def insert_image_data(image_name,solution,day_prediction,image_url,segmented_image_url, accuracy):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO image_data (image_name, day_prediction, image_data, segmented_image, solution)" +
-                   " VALUES(%s,%s,%s,%s,%s)",
-                   (image_name,day_prediction,image_data,segmented_image,solution))
+    cursor.execute("INSERT INTO image_data (image_name, day_prediction, image_url, segmented_image_url, solution, accuracy)" +
+                   " VALUES(%s,%s,%s,%s,%s,%s)",
+                   (image_name,day_prediction,image_url,segmented_image_url,solution, accuracy))
 
     conn.commit()
     count = cursor.rowcount
@@ -102,9 +101,20 @@ def get_image_data():
     conn.commit()
 
     temp = cursor.fetchall()
-    values = [temp[0][1], temp[0][2], bytes(temp[0][3]), bytes(temp[0][4]), temp[0][5]]
     cursor.close()
     conn.close
+    return temp
+
+def get_image(image_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM image_data WHERE id = '" + image_id + "'")
+    conn.commit()
+    temp = cursor.fetchall()
+    values = [temp[0][0], temp[0][1], temp[0][2], temp[0][3], temp[0][4], temp[0][5], temp[0][6]]
+
+    print(temp)
     return values
 
 ############################ SOLUTION DATA FUNCTIONS ############################
