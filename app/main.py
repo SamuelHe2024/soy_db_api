@@ -92,10 +92,10 @@ def user_predict():
             pred = model_predict(img_path)
             pred = pred.tolist()
             values = output_statement(pred)
-            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            # change the filename to the segmented filename eventually
-            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
+            # image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            # # change the filename to the segmented filename eventually
+            # segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            # data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
             os.remove(img_path)
             output['values'].append({"prediction": values["prediction"], "accuracy": values["accuracy"]})
         return output
@@ -104,6 +104,15 @@ def user_predict():
         response["MESSAGE"] = "API is running!"
         return response
     
+@app.route("/predict/upload", methods=['GET','POST'])
+def user_predict_upload():
+    if request.method == 'POST':
+
+    elif request.method == 'GET':
+        response = {}
+        response["MESSAGE"] = "API is running!"
+        return response
+
 @app.route("/db/dry_weight", methods=['GET','POST'])
 def dry_weight():
     if request.method == 'GET':
