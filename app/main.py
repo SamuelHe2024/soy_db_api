@@ -103,15 +103,6 @@ def user_predict():
         response = {}
         response["MESSAGE"] = "API is running!"
         return response
-    
-@app.route("/predict/upload", methods=['GET','POST'])
-def user_predict_upload():
-    if request.method == 'POST':
-
-    elif request.method == 'GET':
-        response = {}
-        response["MESSAGE"] = "API is running!"
-        return response
 
 @app.route("/db/dry_weight", methods=['GET','POST'])
 def dry_weight():
