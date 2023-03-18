@@ -105,7 +105,7 @@ def user_predict():
             output['values'].append({"prediction": values["prediction"], "accuracy": values["accuracy"]})
         return output
     elif request.method == 'GET':
-        response = output
+        response = {}
         response["MESSAGE"] = "API is running!"
         return response
     
