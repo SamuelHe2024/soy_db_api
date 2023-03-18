@@ -22,10 +22,6 @@ app.config['S3_BUCKET'] = AWS_BUCKET_NAME
 app.config['S3_KEY'] = AWS_ACCESS_KEY
 app.config['S3_SECRET'] = AWS_SECRET_KEY
 app.config['S3_LOCATION'] = AWS_LOCATION
-# app.config['S3_BUCKET'] = os.getenv('AWS_BUCKET_NAME')
-# app.config['S3_KEY'] = os.getenv('AWS_ACCESS_KEY')
-# app.config['S3_SECRET'] = os.getenv('AWS_SECRET_KEY')
-# app.config['S3_LOCATION'] = os.getenv('AWS_BUCKET_NAME')
 
 
 def model_predict(img_path):
@@ -83,7 +79,6 @@ def user_upload():
 
 @app.route("/predict", methods=['GET','POST'])
 def user_predict():
-    output = {}
     if request.method == 'POST':
         uploaded_files = request.files.getlist('files[]')
         output = {'values':[]}
@@ -100,7 +95,12 @@ def user_predict():
             image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
             # change the filename to the segmented filename eventually
             segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url)
+            print(file.filename)
+            print(values["prediction"])
+            print(image_url)
+            print(segmented_url)
+            print(values["accuracy"])
+            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
             os.remove(img_path)
             output['values'].append({"prediction": values["prediction"], "accuracy": values["accuracy"]})
         return output
@@ -170,7 +170,7 @@ def image(id):
     if request.method == 'GET':
         raw_data = data.get_image(id)
         response = {"raw_data":[]}
-        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url", "solution", "accuracy"]
+        columns = ["id","image_name", "solution", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
         for i in range (len(raw_data)):
             response["raw_data"].append({columns[i] : raw_data[i]})
         return response
