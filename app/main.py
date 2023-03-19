@@ -88,6 +88,8 @@ def user_predict():
         sys.stdout.flush()
         output = {'values':[]}
         for file in uploaded_files:
+            print(file.filename)
+            sys.stdout.flush()
             #need to get image from POST request
             # #create img_path to call model
             basepath = os.path.dirname(__file__)
