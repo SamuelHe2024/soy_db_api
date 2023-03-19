@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import keras
 import os
+import sys
 from flask_cors import CORS
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
@@ -80,7 +81,11 @@ def user_upload():
 @app.route("/predict", methods=['GET','POST'])
 def user_predict():
     if request.method == 'POST':
+        print("POST")
+        sys.stdout.flush()
         uploaded_files = request.files.getlist('files[]')
+        print("uploaded files")
+        sys.stdout.flush()
         output = {'values':[]}
         for file in uploaded_files:
             #need to get image from POST request
