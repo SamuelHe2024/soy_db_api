@@ -93,12 +93,22 @@ def user_predict():
             #need to get image from POST request
             # #create img_path to call model
             basepath = os.path.dirname(__file__)
+            print(basepath)
+            sys.stdout.flush()
             img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))            
+            print(img_path)
+            sys.stdout.flush()
             file.save(img_path)
             # #call model
             pred = model_predict(img_path)
+            print(pred)
+            sys.stdout.flush()
             pred = pred.tolist()
+            print(pred)
+            sys.stdout.flush()
             values = output_statement(pred)
+            print(values)
+            sys.stdout.flush()
             # image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
             # # change the filename to the segmented filename eventually
             # segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
