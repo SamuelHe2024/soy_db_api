@@ -28,6 +28,8 @@ app.config['S3_LOCATION'] = AWS_LOCATION
 def model_predict(img_path):
     #load the image, make sure it is the target size (specified by model code)
     img = keras.utils.load_img(img_path, target_size=(224,224))
+    print("img loaded")
+    sys.stdout.flush()
     #convert the image to an array
     img = keras.utils.img_to_array(img)
     #normalize array size
@@ -37,8 +39,14 @@ def model_predict(img_path):
 
     #call model for prediction
     opt = keras.optimizers.RMSprop(learning_rate = 0.01)
+    print("opt")
+    sys.stdout.flush()
     model.compile(optimizer = opt, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
+    print("model compiled")
+    sys.stdout.flush()
     pred = model.predict(img)
+    print(pred)
+    sys.stdout.flush()
     return pred
 
 def output_statement(pred):
