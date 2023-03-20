@@ -28,8 +28,6 @@ app.config['S3_LOCATION'] = AWS_LOCATION
 def model_predict(img_path):
     #load the image, make sure it is the target size (specified by model code)
     img = keras.utils.load_img(img_path, target_size=(224,224))
-    print("img loaded")
-    sys.stdout.flush()
     #convert the image to an array
     img = keras.utils.img_to_array(img)
     #normalize array size
@@ -39,14 +37,11 @@ def model_predict(img_path):
 
     #call model for prediction
     opt = keras.optimizers.RMSprop(learning_rate = 0.01)
-    print("opt")
-    sys.stdout.flush()
+
     model.compile(optimizer = opt, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
-    print("model compiled")
-    sys.stdout.flush()
+
     pred = model.predict(img)
-    print(pred)
-    sys.stdout.flush()
+
     return pred
 
 def output_statement(pred):
@@ -89,40 +84,32 @@ def user_upload():
 @app.route("/predict", methods=['GET','POST'])
 def user_predict():
     if request.method == 'POST':
-        print("POST")
-        sys.stdout.flush()
         uploaded_files = request.files.getlist('files[]')
-        print("uploaded files")
-        sys.stdout.flush()
-        output = {'values':[]}
+
+        output = []
+        count = 0
         for file in uploaded_files:
-            print(file.filename)
-            sys.stdout.flush()
             #need to get image from POST request
             # #create img_path to call model
             basepath = os.path.dirname(__file__)
-            print(basepath)
-            sys.stdout.flush()
+
             img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))            
-            print(img_path)
-            sys.stdout.flush()
+
             file.save(img_path)
             # #call model
             pred = model_predict(img_path)
-            print(pred)
-            sys.stdout.flush()
+
             pred = pred.tolist()
-            print(pred)
-            sys.stdout.flush()
+
             values = output_statement(pred)
-            print(values)
-            sys.stdout.flush()
-            # image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            # # change the filename to the segmented filename eventually
-            # segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            # data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
+
+            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            # change the filename to the segmented filename eventually
+            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
             os.remove(img_path)
-            output['values'].append({"prediction": values["prediction"], "accuracy": values["accuracy"]})
+            output.append({"id":count, "filename": file.filename, "prediction": values["prediction"], "accuracy": values["accuracy"]})
+            count += 1
         return output
     elif request.method == 'GET':
         response = {}
@@ -140,7 +127,12 @@ def dry_weight():
             for i in range (len(columns)):
                 append_obj[columns[i]] = row[i]
             response['row_data'].append(append_obj)
-    return response
+        return response
+    if request.method == 'POST':
+        dryWeight = request.form.get('dryWeight')
+        solution = request.form.get('solution')
+        data.insert_dry_weight(solution, dryWeight)
+        return {"Successfully Inserted Data"}
     
     
 @app.route("/db/water_uptake", methods=['GET','POST'])
@@ -155,6 +147,12 @@ def water_uptake():
                 append_obj[columns[i]] = row[i]
             response['row_data'].append(append_obj)
         return response
+    if request.method == 'POST':
+        solution = request.form.get('solution')
+        recordDate = request.form.get('recordDate')
+        uptakeAmount = request.form.get('uptakeAmount')
+        data.insert_water_uptake(solution,uptakeAmount,recordDate)
+        return {"Succesffully inserted data"}
     
     
 @app.route("/db/solution_data", methods=['GET','POST'])
@@ -162,7 +160,7 @@ def solution_data():
     if request.method == 'GET':
         raw_data = data.get_solution_data()
         response = {"row_data":[]}
-        columns = ["id","solution", "concentration", "calcium", "magnesium", "sodium", "potassium", "boron", "co_3", "hco_3", "so_4", 
+        columns = ["id","solution","calcium", "magnesium", "sodium", "potassium", "boron", "co_3", "hco_3", "so_4", 
                    "chlorine", "no3_n", "phosphorus", "ph", "conductivity", "sar", "iron", "zinc", "copper", "manganese", "arsenic",
                    "barium", "nickel","cadmium", "lead", "chromium", "fluorine", "cb"]
         for row in raw_data:
