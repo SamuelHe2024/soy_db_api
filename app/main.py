@@ -158,17 +158,53 @@ def water_uptake():
 @app.route("/db/solution_data", methods=['GET','POST'])
 def solution_data():
     if request.method == 'GET':
-        raw_data = data.get_solution_data()
-        response = {"row_data":[]}
         columns = ["id","solution","calcium", "magnesium", "sodium", "potassium", "boron", "co_3", "hco_3", "so_4", 
                    "chlorine", "no3_n", "phosphorus", "ph", "conductivity", "sar", "iron", "zinc", "copper", "manganese", "arsenic",
                    "barium", "nickel","cadmium", "lead", "chromium", "fluorine", "cb"]
+        raw_data = data.get_solution_data()
+        response = {"row_data":[]}
         for row in raw_data:
             append_obj = {}
             for i in range (len(columns)):
                 append_obj[columns[i]] = row[i]
             response['row_data'].append(append_obj)
         return response
+    if request.method == 'POST':
+        values = {"Calcium" : ""}
+        columns = [ 'solution',
+                    'Calcium',
+                    'Magnesium',
+                    'Sodium',
+                    'Potassium',
+                    'Boron',
+                    'CO_3',
+                    'HCO_3',
+                    'SO_4',
+                    'Chlorine',
+                    'NO3_n',
+                    'Phosphorus',
+                    'pH',
+                    'Conductivity',
+                    'SAR',
+                    'Iron',
+                    'Zinc',
+                    'Copper',
+                    'Manganese',
+                    'Arsenic',
+                    'Barium',
+                    'Nickel',
+                    'Cadmium',
+                    'Lead',
+                    'Chromium',
+                    'Fluorine',
+                    'Cb']
+        for col in columns:
+            if(col != "solution"):
+                values[col] = int(request.form.get(col))
+            else:
+                values[col] = request.form.get(col)
+        data.insert_solution_data(**values)
+        return {}
 
 @app.route("/db/image_data", methods=['GET','POST'])
 def image_data():
