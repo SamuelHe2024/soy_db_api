@@ -103,10 +103,11 @@ def user_predict():
 
             values = output_statement(pred)
 
-            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
+            filename = file.filename.replace(" ", "_")
+            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + filename
             # change the filename to the segmented filename eventually
-            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + file.filename
-            # data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
+            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + filename
+            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
             os.remove(img_path)
             output.append({"id":count, "filename": file.filename, "prediction": values["prediction"], "accuracy": values["accuracy"]})
             count += 1
