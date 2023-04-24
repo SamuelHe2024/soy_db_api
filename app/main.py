@@ -81,42 +81,6 @@ def user_upload():
                 print("not uploaded")
         return ""
 
-@app.route("/predict", methods=['GET','POST'])
-def user_predict():
-    if request.method == 'POST':
-        uploaded_files = request.files.getlist('files[]')
-
-        output = []
-        count = 0
-        for file in uploaded_files:
-            #need to get image from POST request
-            # #create img_path to call model
-            basepath = os.path.dirname(__file__)
-
-            img_path = os.path.join(basepath, 'uploads', secure_filename(file.filename))            
-
-            file.save(img_path)
-            # #call model
-            pred = model_predict(img_path)
-
-            pred = pred.tolist()
-
-            values = output_statement(pred)
-
-            filename = file.filename.replace(" ", "_")
-            image_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + filename
-            # change the filename to the segmented filename eventually
-            segmented_url = "https://soy-api-s3.s3.us-east-2.amazonaws.com/" + filename
-            data.insert_image_data(file.filename,"test_sol",values["prediction"], image_url, segmented_url, values["accuracy"])
-            os.remove(img_path)
-            output.append({"id":count, "filename": file.filename, "prediction": values["prediction"], "accuracy": values["accuracy"]})
-            count += 1
-        return output
-    elif request.method == 'GET':
-        response = {}
-        response["MESSAGE"] = "API is running!"
-        return response
-
 @app.route("/db/dry_weight", methods=['GET','POST'])
 def dry_weight():
     if request.method == 'GET':
