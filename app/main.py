@@ -43,25 +43,6 @@ def user_upload():
                 print("not uploaded")
         return ""
 
-@app.route("/predict", methods=['GET','POST'])
-def user_predict():
-    if request.method == 'POST':
-        uploaded_files = request.files.getlist('files[]')
-
-        output = []
-        count = 0
-        for file in uploaded_files:
-
-            data.insert_image_data(file.filename,values["prediction"], image_url, segmented_url, values["accuracy"])
-            os.remove(img_path)
-            output.append({"id":count, "filename": file.filename, "prediction": values["prediction"], "accuracy": values["accuracy"]})
-            count += 1
-        return output
-    elif request.method == 'GET':
-        response = {}
-        response["MESSAGE"] = "API is running!"
-        return response
-
 @app.route("/db/dry_weight", methods=['GET','POST'])
 def dry_weight():
     if request.method == 'GET':
