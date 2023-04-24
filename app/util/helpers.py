@@ -8,6 +8,7 @@ AWS_SECRET_KEY=os.getenv('AWS_SECRET_KEY')
 AWS_LOCATION=os.getenv('AWS_LOCATION')
 
 
+
 def upload_file_to_s3(file, acl="public-read"):
     
     s3 = boto3.client(

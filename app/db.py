@@ -76,13 +76,13 @@ def get_water_uptake():
 #day_prediction: string (varchar)
 #image_url: string (varchar)
 #segmented_image_url: string (varchar)
-def insert_image_data(image_name,solution,day_prediction,image_url,segmented_image_url, accuracy):
+def insert_image_data(image_name,day_prediction,image_url,segmented_image_url, accuracy):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO image_data (image_name, day_prediction, image_url, segmented_image_url, solution, accuracy)" +
-                   " VALUES(%s,%s,%s,%s,%s,%s)",
-                   (image_name,day_prediction,image_url,segmented_image_url,solution, accuracy))
+    cursor.execute("INSERT INTO image_data (image_name, day_prediction, image_url, segmented_image_url, accuracy)" +
+                   " VALUES(%s,%s,%s,%s,%s)",
+                   (image_name,day_prediction,image_url,segmented_image_url, accuracy))
 
     conn.commit()
     count = cursor.rowcount
