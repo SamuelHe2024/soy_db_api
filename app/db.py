@@ -1,5 +1,7 @@
 import psycopg2
 import os
+import pandas as pd
+import sqlalchemy
 DATABASE_URL = "postgres://tbptunbssokuks:df66dff65cf6af8223a6696a4aa8a0f22aaefbe8ef3dc6accd643a5e64d9abd7@ec2-3-223-213-207.compute-1.amazonaws.com:5432/da38dpv7bfap34"
 ############################ DRY WEIGHT FUNCTIONS ############################
 #INPUTS:
@@ -145,7 +147,6 @@ def get_solution_data():
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     
-
     cursor.execute("SELECT * FROM solution_data")
     
     conn.commit()
@@ -154,3 +155,16 @@ def get_solution_data():
     cursor.close()
     conn.close
     return values
+
+def get_interpolated_water_uptake():
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = conn.cursor()
+    
+    sql = "SELECT * FROM water_uptake"
+
+    dat = pd.read_sql_query(sql,conn)
+    waterdf = pd.DataFrame(dat)
+    print(waterdf.to_string())
+    conn.commit()
+    cursor.close()
+    conn.close

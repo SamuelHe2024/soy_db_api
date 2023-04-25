@@ -151,15 +151,7 @@ def image_data():
 @app.route("/db/interpolated_data", methods=['GET','POST'])
 def interpolated_data():
     if request.method == 'GET':
-        raw_data = data.get_image_data()
-        print(raw_data)
-        response = {"row_data":[]}
-        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
-        for row in raw_data:
-            append_obj = {}
-            for i in range (len(columns)):
-                append_obj[columns[i]] = row[i]
-            response['row_data'].append(append_obj)
+        raw_data = data.get_interpolated_data()
         return response
 
 @app.route("/db/image_data/<id>", methods=['GET'])
