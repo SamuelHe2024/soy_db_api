@@ -75,11 +75,11 @@ def water_uptake():
             response['row_data'].append(append_obj)
         return response
     if request.method == 'POST':
-        solution = request.form.get('solution')
-        recordDate = request.form.get('recordDate')
-        uptakeAmount = request.form.get('uptakeAmount')
-        data.insert_water_uptake(solution,uptakeAmount,recordDate)
-        return {"Succesffully inserted data"}
+        raw_data = json.loads(request.form.get('inputFields'))
+        print(raw_data[0])
+        for i in raw_data:
+            data.insert_water_uptake(i['solution'], i['uptakeAmount'], i['recordDate'])
+        return {"INSERTED DATA": "VALID"}
     
     
 @app.route("/db/solution_data", methods=['GET','POST'])
@@ -97,40 +97,42 @@ def solution_data():
             response['row_data'].append(append_obj)
         return response
     if request.method == 'POST':
-        values = {"Calcium" : ""}
-        columns = [ 'solution',
-                    'Calcium',
-                    'Magnesium',
-                    'Sodium',
-                    'Potassium',
-                    'Boron',
-                    'CO_3',
-                    'HCO_3',
-                    'SO_4',
-                    'Chlorine',
-                    'NO3_n',
-                    'Phosphorus',
-                    'pH',
-                    'Conductivity',
-                    'SAR',
-                    'Iron',
-                    'Zinc',
-                    'Copper',
-                    'Manganese',
-                    'Arsenic',
-                    'Barium',
-                    'Nickel',
-                    'Cadmium',
-                    'Lead',
-                    'Chromium',
-                    'Fluorine',
-                    'Cb']
-        for col in columns:
-            if(col != "solution"):
-                values[col] = int(request.form.get(col))
-            else:
-                values[col] = request.form.get(col)
-        data.insert_solution_data(**values)
+        raw_data = json.loads(request.form.get('inputFields'))
+        for i in range(len(raw_data)):
+            values = {"Calcium" : ""}
+            columns = [ 'solution',
+                        'Calcium',
+                        'Magnesium',
+                        'Sodium',
+                        'Potassium',
+                        'Boron',
+                        'CO_3',
+                        'HCO_3',
+                        'SO_4',
+                        'Chlorine',
+                        'NO3_n',
+                        'Phosphorus',
+                        'pH',
+                        'Conductivity',
+                        'SAR',
+                        'Iron',
+                        'Zinc',
+                        'Copper',
+                        'Manganese',
+                        'Arsenic',
+                        'Barium',
+                        'Nickel',
+                        'Cadmium',
+                        'Lead',
+                        'Chromium',
+                        'Fluorine',
+                        'Cb']
+            for col in columns:
+                if(col != "solution"):
+                    values[col] = int(raw_data[i][col])
+                else:
+                    values[col] = raw_data[i][col]
+            data.insert_solution_data(**values)
         return {}
 
 @app.route("/db/image_data", methods=['GET','POST'])
