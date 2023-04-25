@@ -151,7 +151,7 @@ def image(id):
     if request.method == 'GET':
         raw_data = data.get_image(id)
         response = {"raw_data":[]}
-        columns = ["id","image_name", "solution", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
+        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
         for i in range (len(raw_data)):
             response["raw_data"].append({columns[i] : raw_data[i]})
         return response
