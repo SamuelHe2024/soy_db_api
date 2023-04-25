@@ -56,10 +56,10 @@ def dry_weight():
             response['row_data'].append(append_obj)
         return response
     if request.method == 'POST':
-        dryWeight = request.form.get('dryWeight')
-        solution = request.form.get('solution')
-        data.insert_dry_weight(solution, dryWeight)
-        return {"Successfully Inserted Data"}
+        raw_data = json.loads(request.form.get('inputFields'))
+        for i in raw_data:
+            data.insert_dry_weight(i['solution'], i['dryWeight'])
+        return {"INSERTED DATA": "VALID"}
     
     
 @app.route("/db/water_uptake", methods=['GET','POST'])
@@ -137,6 +137,20 @@ def solution_data():
 def image_data():
     if request.method == 'GET':
         raw_data = data.get_image_data()
+        response = {"row_data":[]}
+        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
+        for row in raw_data:
+            append_obj = {}
+            for i in range (len(columns)):
+                append_obj[columns[i]] = row[i]
+            response['row_data'].append(append_obj)
+        return response
+    
+@app.route("/db/interpolated_data", methods=['GET','POST'])
+def interpolated_data():
+    if request.method == 'GET':
+        raw_data = data.get_image_data()
+        print(raw_data)
         response = {"row_data":[]}
         columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
         for row in raw_data:
