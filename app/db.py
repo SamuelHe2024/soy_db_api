@@ -112,7 +112,7 @@ def get_image(image_id):
     cursor.execute("SELECT * FROM image_data WHERE id = '" + image_id + "'")
     conn.commit()
     temp = cursor.fetchall()
-    values = [temp[0][0], temp[0][1], temp[0][2], temp[0][3], temp[0][4], temp[0][5], temp[0][6]]
+    values = [temp[0][0], temp[0][1], temp[0][2], temp[0][3], temp[0][4], temp[0][5]]
 
     print(temp)
     return values
