@@ -138,7 +138,7 @@ def image_data():
     if request.method == 'GET':
         raw_data = data.get_image_data()
         response = {"row_data":[]}
-        columns = ["id","image_name", "solution", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
+        columns = ["id","image_name", "day_prediction", "image_url", "segmented_image_url",  "accuracy"]
         for row in raw_data:
             append_obj = {}
             for i in range (len(columns)):
